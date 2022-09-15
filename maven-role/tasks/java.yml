@@ -1,0 +1,14 @@
+# install java
+- name: install jdk
+  apt: 
+    name: default-jdk
+    state: latest
+    update_cache: yes
+  when: ansible_os_family | lower == "debian"
+
+- name: install jdk
+  yum: 
+    name: java-11-openjdk-devel
+    state: latest
+    update_cache: yes
+  when: ansible_os_family | lower == "redhat"

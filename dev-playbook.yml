@@ -1,0 +1,36 @@
+---
+- name: dev machines provisioned
+  hosts: dev
+  become: yes
+  vars:
+    maven_major_version: 3
+    maven_version: 3.8.6
+  tasks:
+  - name: install outils
+    apt:
+      name: 
+      - git 
+      - zsh
+      - nano 
+
+  - name: install java
+    apt:
+      name: default-jdk
+      state: latest
+      update_cache: yes
+  
+  - name: get maven
+    unarchive:
+      src: https://dlcdn.apache.org/maven/maven-{{maven_major_version}}/{{maven_version}}/binaries/apache-maven-{{maven_version}}-bin.tar.gz
+      remote_src: yes
+      dest: /opt/ 
+
+  - name: creer maven.sh
+    template:
+      src: templates/maven.sh.j2
+      dest: /etc/profile.d/maven.sh
+      mode: '755'
+  
+  - shell:
+      cmd: . /etc/profile.d/maven.sh 
+

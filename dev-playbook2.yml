@@ -1,0 +1,8 @@
+---
+- name: dev machines provisioned
+  hosts: dev
+  become: yes
+  roles:
+  - role: maven-role
+    vars:
+      maven_version: "3.8.6"
