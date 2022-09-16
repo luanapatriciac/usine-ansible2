@@ -1,0 +1,22 @@
+[Unit]
+Description=Sonarqube
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/opt/sonarqube/sonarqube-8.9.9.56886/bin/linux-x86-64/sonar.sh start
+ExecRestart=/opt/sonarqube/sonarqube-8.9.9.56886/bin/linux-x86-64/sonar.sh restart
+ExecStop=/opt/sonarqube-8.9.9.56886/bin/linux-x86-64/sonar.sh stop
+
+Restart=on-failure
+RestartSec=10
+
+User=sonar
+Group=sonar
+
+[Service]
+Type=forking
+
+[Install]
+WantedBy=multi-user.target
+

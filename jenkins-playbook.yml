@@ -1,0 +1,72 @@
+- name: dev machines provisioned
+  hosts: ci
+  become: yes
+  tasks:
+  - name: yum update
+    yum:
+      name: '*'
+      state: latest
+
+  - name: install utilities
+    yum:
+      name:
+      - wget
+      - unzip
+      - tree
+      - net-tools
+      - curl
+ 
+  - name: install git
+    include_tasks: git-tasks.yml
+
+  - name: install maven role
+    include_role: 
+      name: maven-role
+    vars:
+      maven_version: 3.8.6
+  - name: install Jenkins for CentOS Family (Redhat)
+    block:
+    - name: Add Jenkins Repo (Download Long Term Jenkins release)
+      yum_repository:
+        name: Jenkins
+        description: Jenkins Stable Repo
+        baseurl: http://pkg.jenkins.io/redhat-stable
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+    - rpm_key:
+        key: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+        state: present
+        validate_certs: no
+    - get_url:
+        url: http://pkg.jenkins.io/redhat-stable/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+        validate_certs: no
+   
+    - name: Install jenkins
+      yum:
+        name: jenkins
+    when: ansible_os_family | lower == "redhat"
+  
+  - name: install jenkins on Debian
+    block:
+    - name: Add Jenkins apt repository key
+      ansible.builtin.get_url:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+        dest: /url/share/keyrings/jenkins-keyring.asc
+        mode: '0644'
+        force: true
+
+    - name: Add Jenkins apt repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+        state: present
+        update_cache: true
+    when: ansible_os_family | lower == "debian"
+        
+  - name: Start jenkins and turn the service enabled
+    systemd:
+      name: jenkins
+      state: started
+      enabled: yes
+

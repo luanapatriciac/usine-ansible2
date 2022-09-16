@@ -1,0 +1,38 @@
+---
+- name: sonar installed
+  become: yes
+  hosts: ci
+  tasks:
+  - name: sonar user created
+    user:
+      name: sonar
+      create_home: no
+      shell: /bin/false
+      state: present
+  - name: get sonarqube
+    unarchive:
+      src: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-8.9.9.56886.zip
+      dest: /opt/
+      owner: sonar
+      group: sonar
+      remote_src: yes
+      creates: /opt/sonarqube-8.9.9.56886
+  - name: rename sonar folder
+    command: mv /opt/sonarqube-8.9.9.56886 /opt/sonarqube
+    args:
+      creates: /opt/sonarqube
+  - name: sonarqube service created
+    template:
+      src: templates/sonarqube.service.j2
+      dest: /etc/systemd/system/sonarqube.service
+      owner: root
+      group: root
+      mode: '0644'
+  - name: start sonarqube service
+    systemd:
+      daemon_reload: yes
+      name: sonarqube
+      state: started
+      enabled: yes
+
+
