@@ -1,0 +1,19 @@
+[Unit]
+Description=Apache Tomcat 9
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecRestart=/opt/tomcat/bin/shutdown.sh; /opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+
+User=tomcat
+Group=tomcat
+
+[Service]
+Type=forking
+
+[Install]
+WantedBy=multi-user.target
+

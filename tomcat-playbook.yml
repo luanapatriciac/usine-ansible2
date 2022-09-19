@@ -1,0 +1,70 @@
+---
+- name: tomcat install
+  become: yes
+  hosts: prod  
+  vars:
+    tomcat_major_version: 9 
+    tomcat_version: 9.0.65
+  tasks: 
+  - name: default install java
+    yum: 
+      name: java-11-openjdk-devel
+      state: latest
+      update_cache: yes
+     
+  - name: user tomcat created
+    user: 
+      name: tomcat
+      shell: /bin/false
+      home: /opt/tomcat
+
+  - name: download and unarchive
+    unarchive:
+      src: https://downloads.apache.org/tomcat/tomcat-{{tomcat_major_version}}/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
+      dest: /opt/
+      remote_src: yes
+      validate_certs: no
+
+  - name: copy tomcat under tomcat folder
+    shell: mv /opt/apache-tomcat-{{tomcat_version}}/* /opt/tomcat
+    args:
+      creates: /opt/tomcat/bin
+
+  - name: remove download directory
+    file:
+      path:  /opt/apache-tomcat-{{tomcat_version}}
+      state: absent
+    
+  - name: edit context files
+    template: 
+      src: templates/context.xml.j2
+      dest: "{{item}}"
+    loop:
+    - /opt/tomcat/webapps/host-manager/META-INF/context.xml
+    - /opt/tomcat/webapps/manager/META-INF/context.xml
+
+  - name: edit user file
+    template:
+      src: templates/tomcat-users.xml.j2
+      dest: /opt/tomcat/conf/tomcat-users.xml
+
+  - name: change tomcat files ownership
+    file:
+      path: /opt/tomcat
+      owner: tomcat
+      group: tomcat
+      recurse: yes
+
+  - name: created tomcat service
+    template:
+      src: templates/tomcat.service.j2
+      dest: /etc/systemd/system/tomcat.service
+
+  - name: tomcat started and enabled
+    systemd:
+      name: tomcat
+      state: restarted
+      daemon_reload: yes
+      enabled: yes
+
+  
