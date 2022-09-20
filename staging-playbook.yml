@@ -1,0 +1,13 @@
+---
+- name: staging server configure
+  hosts: staging
+  become: yes
+  tasks:
+  - name: docker installed
+    include_tasks: docker-task.yml
+
+  - name: add vagrant dans le group docker
+    user:
+      name: vagrant
+      groups: docker
+      append: yes

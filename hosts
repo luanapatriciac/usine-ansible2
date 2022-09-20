@@ -2,6 +2,7 @@ dev1 ansible_host=192.168.60.101 ansible_user=vagrant
 dev2 ansible_host=192.168.60.102 ansible_user=vagrant
 jenkins ansible_host=192.168.60.10 ansible_user=vagrant
 tomcat ansible_host=192.168.60.120 ansible_user=vagrant
+docker ansible_host=192.168.60.240 ansible_user=vagrant
 
 [dev]
 dev1 
@@ -12,3 +13,6 @@ jenkins
 
 [prod]
 tomcat
+
+[staging]
+docker
