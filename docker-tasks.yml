@@ -1,0 +1,38 @@
+---
+- name: installer docker sur Centos
+  block:
+  - name: add docker repo
+    yum_repository:
+      name: Docker
+      description: Docker CE Stable
+      baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+      gpgcheck: true
+      gpgkey: https://download.docker.com/linux/centos/gpg
+      enabled: true
+
+  - name: docker installed
+    yum:
+      name:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+      update_cache: yes
+      state: latest
+  when: ansible_os_family | lower == "redhat"
+
+- name: installer docker sur Ubuntu
+  block:
+  - name: add docker repo
+    apt:
+      name: docker.io
+      state: present
+      update_cache: yes
+  when: ansible_os_family | lower == "debian"
+
+
+- name: dockre started and enabled
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+

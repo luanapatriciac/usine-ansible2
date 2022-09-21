@@ -4,7 +4,7 @@
   become: yes
   tasks:
   - name: docker installed
-    include_tasks: docker-task.yml
+    include_tasks: docker-tasks.yml
 
   - name: add vagrant dans le group docker
     user:
